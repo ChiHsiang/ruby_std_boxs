@@ -21,3 +21,33 @@ Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
   puts response.code
 end
 
+
+# HTTP METHODS
+
+class Request
+  VERB_MAP = {
+    :get    => Net::HTTP::Get,
+    :post   => Net::HTTP::Post,
+    :put    => Net::HTTP::Put,
+    :delete => Net::HTTP::Delete
+  }
+
+  def initialize(method, path, params)
+    request(method, path, params)
+  end
+  
+  private
+  
+  def request(method, path, params)
+    case method
+    when :get
+      full_path = encode_path_params(path, params)
+      request = VERB_MAP[method].new(full_path)
+    else
+      request = VERB_MAP[method].new(path)
+      request.set_form_data(params)
+    end
+
+    request
+  end
+end
